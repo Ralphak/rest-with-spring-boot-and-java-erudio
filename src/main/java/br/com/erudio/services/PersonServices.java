@@ -1,61 +1,49 @@
 package br.com.erudio.services;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.erudio.exceptions.ResourceNotFoundException;
 import br.com.erudio.models.Person;
+import br.com.erudio.repositories.PersonRepository;
 
 @Service
 public class PersonServices {
-	private final AtomicLong counter = new AtomicLong(); 
 	private Logger logger = Logger.getLogger(PersonServices.class.getName());
+	
+	@Autowired
+	PersonRepository repository;
 
-	public Person findById(String id) {
+	public Person findById(Long id) {
 		logger.info("Finding one person!");
-		Person person = new Person();
-		person.setId(counter.incrementAndGet());
-		person.setFirstName("Leandro");
-		person.setLastName("Costa");
-		person.setAddress("Uberlândia");
-		person.setGender("Male");
-		return person;
+		return repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 	}
 	
 	public List<Person> findAll(){
 		logger.info("Finding all people!");
-		List<Person> persons = new ArrayList<>();
-		for(int i=0; i<8; i++) {
-			persons.add(mockPerson(i));
-		}
-		return persons;
-	}
-
-	private Person mockPerson(int i) {
-		Person person = new Person();
-		person.setId(counter.incrementAndGet());
-		person.setFirstName("Person name " + i);
-		person.setLastName("Last name " + i);
-		person.setAddress("Some address in Brasil");
-		String[] genders = {"Male", "Female"};
-		person.setGender(genders[i%2]);
-		return person;
+		return repository.findAll();
 	}
 	
 	public Person create(Person person) {
 		logger.info("Creating one person!");
-		return person;
+		return repository.save(person);
 	}
 	
 	public Person update(Person person) {
 		logger.info("Updating one person!");
-		return person;
+		if(repository.existsById(person.getId()))
+			return repository.save(person);
+		else throw new ResourceNotFoundException("No records found for this ID!");
 	}
 	
-	public void delete(String id) {
+	public void delete(Long id) {
 		logger.info(String.format("Deleting person %s!", id));
+		if(repository.existsById(id))
+			repository.deleteById(id);
+		else throw new ResourceNotFoundException("No records found for this ID!");
 	}
 }
