@@ -13,6 +13,7 @@ import br.com.erudio.repositories.PersonRepository;
 @Service
 public class PersonServices {
 	private Logger logger = Logger.getLogger(PersonServices.class.getName());
+	private final String noRecordsFoundMessage = "No records found for this ID!";
 	
 	@Autowired
 	PersonRepository repository;
@@ -20,7 +21,7 @@ public class PersonServices {
 	public Person findById(Long id) {
 		logger.info("Finding one person!");
 		return repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
+				.orElseThrow(() -> new ResourceNotFoundException(noRecordsFoundMessage));
 	}
 	
 	public List<Person> findAll(){
@@ -37,13 +38,13 @@ public class PersonServices {
 		logger.info("Updating one person!");
 		if(repository.existsById(person.getId()))
 			return repository.save(person);
-		else throw new ResourceNotFoundException("No records found for this ID!");
+		else throw new ResourceNotFoundException(noRecordsFoundMessage);
 	}
 	
 	public void delete(Long id) {
 		logger.info(String.format("Deleting person %s!", id));
 		if(repository.existsById(id))
 			repository.deleteById(id);
-		else throw new ResourceNotFoundException("No records found for this ID!");
+		else throw new ResourceNotFoundException(noRecordsFoundMessage);
 	}
 }
