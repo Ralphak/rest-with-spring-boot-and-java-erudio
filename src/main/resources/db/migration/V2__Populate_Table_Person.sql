@@ -1,0 +1,1 @@
+INSERT INTO `person` VALUES (2,'Nelson','Mandela','South Africa','Male'),(3,'Nikola','Tesla','Croatia','Male');
